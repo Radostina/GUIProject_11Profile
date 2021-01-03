@@ -1,7 +1,14 @@
 package edu.smg;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -17,7 +24,7 @@ public class GratitudeJournal {
 		JFrame frame = new JFrame("Gratitude Journal");
 		frame.setSize(350, 200);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		// main containers and Layouts
 		JPanel mainPanel = new JPanel();
 		frame.add(mainPanel);
@@ -38,8 +45,24 @@ public class GratitudeJournal {
 		JTextArea journalArea = new JTextArea();
 		journalArea.setBounds(100, 20, 165, 25);
 		journalArea.setEditable(false);
-		journalArea.setText("Here are the journal logs from previous days");
 		leftPanel.add(journalArea);
+		File myObj = new File("filename.txt");
+		String text = "";
+		try {
+			Scanner myReader = new Scanner(myObj);
+			while (myReader.hasNextLine()) {
+				text += myReader.nextLine() + "\n";
+			}
+			myReader.close();
+		} catch (FileNotFoundException e) {
+			try {
+				myObj.createNewFile();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		journalArea.setText(text);
 
 		// right side
 		SimpleDateFormat ft = new SimpleDateFormat("dd. M yyyy");
@@ -53,11 +76,55 @@ public class GratitudeJournal {
 		JTextField gratitudeText_3 = new JTextField();
 		rightPanel.add(gratitudeText_3);
 
-		JButton thankButton = new JButton("Thanks");
-		rightPanel.add(thankButton);
-		
-		JLabel inspirationLabel = new JLabel("How we spend our days is of course "
-				+ "how we spend our lives.");
+		JButton thanksButton = new JButton("Thanks");
+		thanksButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String gratitude1 = gratitudeText_1.getText();
+				String gratitude2 = gratitudeText_2.getText();
+				String gratitude3 = gratitudeText_3.getText();
+				if (gratitude1.isEmpty() && gratitude2.isEmpty() && gratitude3.isEmpty()) {
+					return;
+				}
+				String text = 
+						currentDateLabel.getText() + "\n"
+				+ gratitude1 + "\n"
+				+ gratitude2 + "\n" 
+				+ gratitude3 + "\n";
+				try {
+					FileWriter myWriter = new FileWriter("filename.txt",true);
+					myWriter.write(text);
+					myWriter.close();
+
+				} catch (IOException e) {
+					System.out.println("An error occurred.");
+					e.printStackTrace();
+				}
+				
+				File myObj = new File("filename.txt");
+				text = "";
+				try {
+					Scanner myReader = new Scanner(myObj);
+					while (myReader.hasNextLine()) {
+						text += myReader.nextLine() + "\n";
+					}
+					myReader.close();
+				} catch (FileNotFoundException e) {
+					try {
+						myObj.createNewFile();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				journalArea.setText(text);
+
+			}
+		});
+		rightPanel.add(thanksButton);
+
+		JLabel inspirationLabel = new JLabel("How we spend our days is of course " + "how we spend our lives.");
 		rightPanel.add(inspirationLabel);
 
 		frame.pack();
